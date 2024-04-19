@@ -39,6 +39,16 @@ public class CustomTaskRequest {
         if (taskName.equals("CheckForSend")) {
             checkForSend(imei);
         }
+        if (taskName.equals("MaintenanceMode")) {
+            maintenanceMode(imei);
+        }
+        if (taskName.equals("Showcontainer")) {
+            maintenanceMode(imei);
+        }
+    }
+
+    static void maintenanceMode(String imei) {
+        CustomTaskContainer.createInstance(imei).get(imei).put("maintenanceMode", true);
     }
 
     static void requestUpdateNoAnswer(String imei) {

@@ -155,6 +155,7 @@ public class SendHandler implements SendService {
             }
         }
         CustomTaskContainer.createInstance(registration.getEndpoint());
+        LOG.info("Send has been received!");
         if (CustomTaskContainer.createInstance(registration.getEndpoint()).get(registration.getEndpoint())
                 .get("waitForSend")) {
             CustomTaskContainer.createInstance(registration.getEndpoint()).get(registration.getEndpoint())

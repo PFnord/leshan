@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.leshan.core.CustomTaskContainer;
 import org.eclipse.leshan.core.link.Link;
 import org.eclipse.leshan.core.link.attributes.InvalidAttributeException;
 import org.eclipse.leshan.core.link.lwm2m.attributes.DefaultLwM2mAttributeParser;
@@ -423,7 +424,13 @@ public class ClientServlet extends HttpServlet {
             try {
                 Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
                 if (registration != null) {
+                    LOG.info("customTask received!");
                     String target = StringUtils.removeStart(req.getPathInfo(), "/" + clientEndpoint + "/customTask/");
+                    if (target.equals("ShowContainer")) {
+                        LOG.info("Container: {}", CustomTaskContainer.createInstance(clientEndpoint));
+                        resp.getWriter().format("Container '%s'", clientEndpoint).flush();
+                        return;
+                    }
                     CustomTaskRequest.handleCustomTask(target, clientEndpoint);
                     resp.setStatus(HttpServletResponse.SC_OK);
                     resp.getWriter().format("I SEEEE '%s'", clientEndpoint).flush();

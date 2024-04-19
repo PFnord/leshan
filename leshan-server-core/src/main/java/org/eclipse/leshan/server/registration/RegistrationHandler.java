@@ -120,6 +120,13 @@ public class RegistrationHandler {
             }
         };
 
+        CustomTaskContainer.createInstance(approvedRegistration.getEndpoint());
+        if (CustomTaskContainer.createInstance(approvedRegistration.getEndpoint())
+                .get(approvedRegistration.getEndpoint()).get("maintenanceMode")) {
+            CustomTaskContainer.createInstance(approvedRegistration.getEndpoint())
+                    .get(approvedRegistration.getEndpoint()).put("maintenanceMode", false);
+            return new SendableResponse<>(RegisterResponse.maintenance(approvedRegistration.getId()), whenSent);
+        }
         return new SendableResponse<>(RegisterResponse.success(approvedRegistration.getId()), whenSent);
     }
 
@@ -139,13 +146,35 @@ public class RegistrationHandler {
 
         // Validate request
         LwM2mVersion lwM2mVersion = currentRegistration.getLwM2mVersion();
-        if (!CustomTaskContainer.getInstance().requestUpdateAnswer) {
-            CustomTaskContainer.getInstance().requestUpdateAnswer = true;
-            try {
-                TimeUnit.SECONDS.sleep(10);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+        CustomTaskContainer.createInstance(currentRegistration.getEndpoint());
+        // If we asked leshan not to answer to the request
+        if (!CustomTaskContainer.createInstance(currentRegistration.getEndpoint())
+                .get(currentRegistration.getEndpoint()).get("requestUpdateAnswer")) {
+            // If it is the first time the device requested something, we wait for a second request to revert back to
+            // original behaviour
+            if (!CustomTaskContainer.createInstance(currentRegistration.getEndpoint())
+                    .get(currentRegistration.getEndpoint()).get("secondUpdateAnswer")) {
+                // Set the flag so we know the next time will be the second request to ignore
+                CustomTaskContainer.createInstance(currentRegistration.getEndpoint())
+                        .get(currentRegistration.getEndpoint()).put("secondUpdateAnswer", true);
+                try {
+                    TimeUnit.SECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            } else {
+                // Revert all flags to original behaviour and wait because this is the second request to ignore
+                CustomTaskContainer.createInstance(currentRegistration.getEndpoint())
+                        .get(currentRegistration.getEndpoint()).put("requestUpdateAnswer", true);
+                CustomTaskContainer.createInstance(currentRegistration.getEndpoint())
+                        .get(currentRegistration.getEndpoint()).put("secondUpdateAnswer", false);
+                try {
+                    TimeUnit.SECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         }
         updateRequest.validate(lwM2mVersion);

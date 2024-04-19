@@ -70,6 +70,10 @@ public class RegisterResponse extends AbstractLwM2mResponse {
         return new RegisterResponse(ResponseCode.CREATED, registrationID, null);
     }
 
+    public static RegisterResponse maintenance(String registrationID) {
+        return new RegisterResponse(ResponseCode.SERVICE_UNAVAILABLE, registrationID, null);
+    }
+
     public static RegisterResponse badRequest(String errorMessage) {
         return new RegisterResponse(ResponseCode.BAD_REQUEST, null, errorMessage);
     }
