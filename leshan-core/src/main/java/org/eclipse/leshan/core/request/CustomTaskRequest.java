@@ -45,10 +45,17 @@ public class CustomTaskRequest {
         if (taskName.equals("Showcontainer")) {
             maintenanceMode(imei);
         }
+        if (taskName.equals("RegisterFailure")) {
+            registerFailure(imei);
+        }
     }
 
     static void maintenanceMode(String imei) {
         CustomTaskContainer.createInstance(imei).get(imei).put("maintenanceMode", true);
+    }
+
+    static void registerFailure(String imei) {
+        CustomTaskContainer.createInstance(imei).get(imei).put("registerFailure", true);
     }
 
     static void requestUpdateNoAnswer(String imei) {

@@ -122,6 +122,14 @@ public class RegistrationHandler {
 
         CustomTaskContainer.createInstance(approvedRegistration.getEndpoint());
         if (CustomTaskContainer.createInstance(approvedRegistration.getEndpoint())
+                .get(approvedRegistration.getEndpoint()).get("registerFailure")) {
+            CustomTaskContainer.createInstance(approvedRegistration.getEndpoint())
+                    .get(approvedRegistration.getEndpoint()).put("registerFailure", false);
+            return new SendableResponse<>(RegisterResponse.forbidden(null));
+        }
+
+        CustomTaskContainer.createInstance(approvedRegistration.getEndpoint());
+        if (CustomTaskContainer.createInstance(approvedRegistration.getEndpoint())
                 .get(approvedRegistration.getEndpoint()).get("maintenanceMode")) {
             CustomTaskContainer.createInstance(approvedRegistration.getEndpoint())
                     .get(approvedRegistration.getEndpoint()).put("maintenanceMode", false);

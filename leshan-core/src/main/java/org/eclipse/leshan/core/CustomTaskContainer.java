@@ -48,6 +48,7 @@ public class CustomTaskContainer {
             insideInfo.put("waitForSend", false);
             insideInfo.put("sendReceived", false);
             insideInfo.put("maintenanceMode", false);
+            insideInfo.put("registerFailure", false);
             taskInfo.put(imei, insideInfo);
         }
         return taskInfo;
