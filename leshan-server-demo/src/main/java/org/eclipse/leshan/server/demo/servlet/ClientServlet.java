@@ -116,6 +116,7 @@ public class ClientServlet extends HttpServlet {
     private static final String PATH_PARAM = "paths";
     private static final String PATH_FORMAT_PARAM = "pathformat";
     private static final String NODE_FORMAT_PARAM = "nodeformat";
+    private static final String EXTREME_VALUE = "{\"id\":0,\"kind\":\"singleResource\",\"value\":\"EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG_EXTREME_VALUE_IS_800_BYTES_LONG?_EXTREME_VALUE_IS_801_BYTES_LONG!\",\"type\":\"string\"}";
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientServlet.class);
 
@@ -427,6 +428,7 @@ public class ClientServlet extends HttpServlet {
                 CustomTaskRequest.handleCustomTask(target, device_endpoint);
                 resp.setStatus(HttpServletResponse.SC_OK);
                 resp.getWriter().format("I SEEEE '%s'", clientEndpoint).flush();
+
             } catch (RuntimeException e) {
                 handleException(e, resp);
             }
@@ -434,7 +436,9 @@ public class ClientServlet extends HttpServlet {
         }
 
         // /clients/endPoint/customTask : do LightWeight M2M discover request on a given client.
-        if (path.length >= 3 && "customTask".equals(path[path.length - 2])) {
+        if (path.length >= 3 && "customTask".equals(path[path.length - 2]))
+
+        {
             try {
                 Registration registration = server.getRegistrationService().getByEndpoint(clientEndpoint);
                 if (registration != null) {
@@ -445,6 +449,27 @@ public class ClientServlet extends HttpServlet {
                         resp.getWriter().format("Container '%s'", clientEndpoint).flush();
                         return;
                     }
+                    if (target.equals("BigWrite")) {
+                        // create & process request
+                        LwM2mNode node = mapper.readValue(EXTREME_VALUE, LwM2mNode.class);
+                        WriteRequest request = new WriteRequest(Mode.REPLACE, ContentFormat.TLV, "/11/2/0", node);
+                        WriteResponse cResponse = server.send(registration, request, extractTimeout(req));
+                        processDeviceResponse(req, resp, cResponse);
+                        return;
+                    }
+                    if (target.equals("BigRead")) {
+                        // create & process request
+                        ReadRequest request = new ReadRequest(ContentFormat.TLV, "/11/2/0");
+                        server.send(registration, request, extractTimeout(req));
+                        processDeviceResponse(req, resp, ReadResponse.success(11, "Overwrite"));
+                        // Reset the value to a smaller value
+                        LwM2mNode node = mapper.readValue(
+                                "{\"id\":0,\"kind\":\"singleResource\",\"value\":\"Success\",\"type\":\"string\"}",
+                                LwM2mNode.class);
+                        WriteRequest lastRequest = new WriteRequest(Mode.REPLACE, ContentFormat.TLV, "/11/2/0", node);
+                        server.send(registration, lastRequest, extractTimeout(req));
+                        return;
+                    }
                     CustomTaskRequest.handleCustomTask(target, clientEndpoint);
                     resp.setStatus(HttpServletResponse.SC_OK);
                     resp.getWriter().format("I SEEEE '%s'", clientEndpoint).flush();
@@ -452,7 +477,7 @@ public class ClientServlet extends HttpServlet {
                     resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     resp.getWriter().format("No registered client with id '%s'", clientEndpoint).flush();
                 }
-            } catch (RuntimeException e) {
+            } catch (RuntimeException | InterruptedException e) {
                 handleException(e, resp);
             }
             return;

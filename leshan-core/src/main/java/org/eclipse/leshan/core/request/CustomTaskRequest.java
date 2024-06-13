@@ -48,6 +48,13 @@ public class CustomTaskRequest {
         if (taskName.equals("RegisterFailure")) {
             registerFailure(imei);
         }
+        if (taskName.equals("BigWrite")) {
+            bigWrite(imei);
+        }
+    }
+
+    static void bigWrite(String imei) {
+        CustomTaskContainer.createInstance(imei).get(imei).put("maintenanceMode", true);
     }
 
     static void maintenanceMode(String imei) {
