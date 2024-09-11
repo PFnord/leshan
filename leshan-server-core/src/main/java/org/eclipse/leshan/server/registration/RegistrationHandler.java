@@ -166,7 +166,7 @@ public class RegistrationHandler {
                 CustomTaskContainer.createInstance(currentRegistration.getEndpoint())
                         .get(currentRegistration.getEndpoint()).put("secondUpdateAnswer", true);
                 try {
-                    TimeUnit.SECONDS.sleep(10);
+                    TimeUnit.SECONDS.sleep(40);
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -178,7 +178,7 @@ public class RegistrationHandler {
                 CustomTaskContainer.createInstance(currentRegistration.getEndpoint())
                         .get(currentRegistration.getEndpoint()).put("secondUpdateAnswer", false);
                 try {
-                    TimeUnit.SECONDS.sleep(10);
+                    TimeUnit.SECONDS.sleep(40);
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
